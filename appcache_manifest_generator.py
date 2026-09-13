@@ -34,7 +34,7 @@ def generate_cache_manifest(directory_path, include_payloads=True):
                 manifest_path = '/'
                 
             manifest_path = manifest_path.replace("\\","/")
-            manifest.append(manifest_path + " #" + file_hash)
+            manifest.append(manifest_path)
 
     manifest.append("")
     manifest.append("NETWORK:")
