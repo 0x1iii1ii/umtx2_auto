@@ -284,4 +284,12 @@ function populatePayloadsPage(wkOnlyMode = false) {
         payloadsView.appendChild(payloadButton);
     }
 
+    if (localStorage.getItem("auto_etahen") === "1" && window.p) {
+        setTimeout(() => {
+            const etahen = payload_map.find(p => p.displayTitle === "etaHEN");
+            if (etahen) {
+                window.dispatchEvent(new CustomEvent(MAINLOOP_EXECUTE_PAYLOAD_REQUEST, { detail: etahen }));
+            }
+        }, 3000);
+    }
 }

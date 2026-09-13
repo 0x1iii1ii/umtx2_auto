@@ -33,7 +33,7 @@ const payload_map = [
     {
         displayTitle: "etaHEN",
         description: "AIO HEN",
-        fileName: "etaHEN-2.4B.bin",
+        fileName: "pldmgr.elf",
         author: "LightningMods, Buzzer, sleirsgoevy, ChendoChap, astrelsky, illusion, CTN, SiSTR0, Nomadic",
         projectSource: "https://github.com/etaHEN/etaHEN",
         binarySource: "https://github.com/etaHEN/etaHEN/blob/0fe0407b3a6a84fb1afc1871c953a74118458b0b/etaHEN-2.4B.bin",
@@ -55,7 +55,7 @@ const payload_map = [
         displayTitle: "Byepervisor HEN",
         description: "FPKG enabler",
         fileName: "byepervisor.elf",
-        author: "SpecterDev, ChendoChap, flatz, fail0verflow, Znullptr, kiwidog, sleirsgoevy, EchoStretch, LightningMods, BestPig, zecoxao, TheOfficialFloW", 
+        author: "SpecterDev, ChendoChap, flatz, fail0verflow, Znullptr, kiwidog, sleirsgoevy, EchoStretch, LightningMods, BestPig, zecoxao, TheOfficialFloW",
         projectSource: "https://github.com/EchoStretch/Byepervisor",
         binarySource: "https://github.com/EchoStretch/Byepervisor/actions/runs/18515784313",
         version: "d89a105",
@@ -143,7 +143,7 @@ const payload_map = [
         version: "0.0.1-r2",
         toPort: 9021
     },
-	    {
+    {
         displayTitle: "kstuff-toggle",
         description: "Kstuff Toggle Beta",
         fileName: "kstuff-toggle.elf",
