@@ -11,12 +11,14 @@ def calculate_file_hash(file_path):
 
 def generate_cache_manifest(directory_path, include_payloads=True):
     manifest = ["CACHE MANIFEST"]
+    manifest_revision = hashlib.sha256()
     manifest.append("")
-    
-    for root, _, files in os.walk(directory_path):
-        for file in files:
+
+    for root, dirs, files in os.walk(directory_path):
+        dirs.sort()
+        for file in sorted(files):
             lower_file = file.lower()
-            if lower_file.endswith('.appcache') or lower_file.endswith('.manifest') or lower_file.endswith('.exe') or lower_file.endswith('.py'): 
+            if lower_file.endswith('.appcache') or lower_file.endswith('.manifest') or lower_file.endswith('.exe') or lower_file.endswith('.py'):
                 continue
             file_path = os.path.join(root, file)
 
@@ -32,10 +34,18 @@ def generate_cache_manifest(directory_path, include_payloads=True):
             manifest_path = os.path.relpath(file_path, directory_path)
             if manifest_path.isspace() or manifest_path == '' or manifest_path == '.':
                 manifest_path = '/'
-                
+
             manifest_path = manifest_path.replace("\\","/")
             manifest.append(manifest_path)
 
+            manifest_revision.update(manifest_path.encode("utf-8"))
+            manifest_revision.update(b"\0")
+            manifest_revision.update(file_hash.encode("ascii"))
+
+    # AppCache only refreshes when the manifest itself changes. Keep the
+    # revision as a valid manifest comment instead of appending fragments to
+    # individual URLs, which makes those entries invalid.
+    manifest.insert(1, f"# revision: {manifest_revision.hexdigest()}")
     manifest.append("")
     manifest.append("NETWORK:")
     manifest.append("*")
