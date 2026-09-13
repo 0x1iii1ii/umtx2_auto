@@ -46,11 +46,11 @@
           >
             <label>
               <input type="checkbox" id="chk-autorun" />
-              Auto-run jailbreak on page load
+              Auto-run jailbreak on page load <br>
             </label>
             <label>
               <input type="checkbox" id="chk-autoetahen" />
-              Auto-launch etaHEN after jailbreak (3s delay)
+              Auto-launch Payload Manager after jailbreak (3s delay)
             </label>
           </div>
         </div>
@@ -114,7 +114,7 @@
         document.getElementById("current-fw").innerHTML = fw_str;
         registerAppCacheEventHandlers();
         registerL2ButtonHandler();
-        window.onload = function () {
+        window.onload = async function () {
           document.getElementById("chk-autorun").checked =
             localStorage.getItem("auto_run") === "1";
           document.getElementById("chk-autoetahen").checked =
@@ -136,6 +136,8 @@
           if (autoload) {
             run(autoload == "wkonly", false);
           } else if (localStorage.getItem("auto_run") === "1") {
+            await waitBeforeAutoRun(AUTO_RUN_DELAY_SECONDS);
+            await waitForAppCacheUpdate();
             run(false, true);
           }
         };

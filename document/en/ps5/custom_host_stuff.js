@@ -5,8 +5,20 @@ const LOCALSTORE_REDIRECTOR_LAST_URL_KEY = "redirector_last_url";
 const SESSIONSTORE_ON_LOAD_AUTORUN_KEY = "on_load_autorun";
 
 const MAINLOOP_EXECUTE_PAYLOAD_REQUEST = "mainloop_execute_payload_request";
+const AUTO_RUN_DELAY_SECONDS = 3;
+
+let appCacheUpdatePromise = null;
+let resolveAppCacheUpdate = null;
 
 let exploitStarted = false;
+
+function beginAppCacheUpdate() {
+    if (!appCacheUpdatePromise) {
+        appCacheUpdatePromise = new Promise((resolve) => {
+            resolveAppCacheUpdate = resolve;
+        });
+    }
+}
 
 async function run(wkonly = false, animate = true) {
     if (exploitStarted) {
@@ -108,6 +120,14 @@ function registerAppCacheEventHandlers() {
 
     let toast;
 
+    function finishAppCacheUpdate() {
+        if (resolveAppCacheUpdate) {
+            resolveAppCacheUpdate();
+            resolveAppCacheUpdate = null;
+            appCacheUpdatePromise = null;
+        }
+    }
+
     function createOrUpdateAppCacheToast(message, timeout = -1) {
         if (!toast) {
             toast = showToast(message, timeout);
@@ -134,13 +154,16 @@ function registerAppCacheEventHandlers() {
 
     appCache.addEventListener('cached', function (e) {
         createOrUpdateAppCacheToast('Finished caching site.', 1500);
+        finishAppCacheUpdate();
     }, false);
 
     appCache.addEventListener('checking', function (e) {
+        beginAppCacheUpdate();
         createOrUpdateAppCacheToast('Checking for updates...');
     }, false);
 
     appCache.addEventListener('downloading', function (e) {
+        beginAppCacheUpdate();
         createOrUpdateAppCacheToast('Downloading new cache...');
     }, false);
 
@@ -157,14 +180,17 @@ function registerAppCacheEventHandlers() {
         } else {
             createOrUpdateAppCacheToast('Offline.', 2000);
         }
+        finishAppCacheUpdate();
     }, false);
 
     appCache.addEventListener('noupdate', function (e) {
         createOrUpdateAppCacheToast('Cache is up-to-date.', 1500);
+        finishAppCacheUpdate();
     }, false);
 
     appCache.addEventListener('obsolete', function (e) {
         createOrUpdateAppCacheToast('Site is obsolete.');
+        finishAppCacheUpdate();
     }, false);
 
     appCache.addEventListener('progress', function (e) {
@@ -190,7 +216,33 @@ function registerAppCacheEventHandlers() {
         if (window.applicationCache.status == window.applicationCache.UPDATEREADY) {
             createOrUpdateAppCacheToast('The site was updated. Refresh to switch to updated version');
         }
+        finishAppCacheUpdate();
     }, false);
+}
+
+function waitForAppCacheUpdate() {
+    const appCache = window.applicationCache;
+    const pendingStatuses = [appCache.CHECKING, appCache.DOWNLOADING];
+
+    if (!document.documentElement.hasAttribute("manifest") ||
+        !pendingStatuses.includes(appCache.status)) {
+        return Promise.resolve();
+    }
+
+    beginAppCacheUpdate();
+
+    return appCacheUpdatePromise;
+}
+
+async function waitBeforeAutoRun(seconds) {
+    const toast = showToast(`Auto-jailbreak starts in ${seconds} s`, -1);
+
+    for (let remaining = seconds; remaining > 0; remaining--) {
+        updateToastMessage(toast, `Auto-jailbreak starts in ${remaining} s`);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+
+    await removeToast(toast);
 }
 
 function registerL2ButtonHandler() {
